@@ -25,7 +25,7 @@ def sourceeau(A):
     for i in range (len(A)):
         for j in range (len(A)):
             if A[i][j]==4:
-                E[i][j]=rd.randint(1000, 3000)
+                E[i][j]=rd.randint(10000, 30000)#valeurs arbitraires
     return(E)
 
 #E=sourceeau(A)
@@ -36,7 +36,7 @@ def pointsdevie(A):
     for i in range (n):
         for j in range (n):
             if A[i][j]==1:
-                V[i][j]=rd.randint(0, 5)
+                V[i][j]=rd.randint(0, 10)
     return (V)
 
 #V=pointsdevie(A)
@@ -280,13 +280,14 @@ def evolutiontemporelle(n, t, consounitaire, p1, p2, cp, dmax, traitement): # t 
     evolutiondeE=np.zeros((t,n,n))
     evolutiondeB=np.zeros((t,n,n))
     evolutiondePol=np.zeros((t,n,n))
-    evolutiondespointsdevie=np.zeros((t,n,n))
+    evolutiondeV=np.zeros((t,n,n))
     #initialisation des listes de suivi
     for j in range (n):
         for k in range(n):
             evolutiondeE[0][j][k]=E[j][k]
             evolutiondeB[0][j][k]=B[j][k]
             evolutiondePol[0][j][k]=Pol[j][k]
+            evolutiondeV[0][j][k]=V[j][k]
     for i in range (t):
         V, Prod=surviebis(A,E,Prod,consounitaire,V, Sect) #on regarde si on peut nourrir tout le monde et on stocke l'excédent de production
         E, Pol= pollutioniterative(E, P,A, Pol, dmax)#ce qui pollue l'eau avec le reste des agents pollueurs
@@ -297,18 +298,24 @@ def evolutiontemporelle(n, t, consounitaire, p1, p2, cp, dmax, traitement): # t 
                 evolutiondeE[i][j][k]=E[j][k]
                 evolutiondeB[i][j][k]=B[j][k]
                 evolutiondePol[i][j][k]=Pol[j][k]
+                evolutiondeV[0][j][k]=V[j][k]
         #evolutiondespointsdevie.append(V)
 
-    return (evolutiondeE)
+    return (evolutiondeE, evolutiondeB, evolutiondePol, evolutiondeV)
 
 #test
 evolutiontemporelle(5, 10, 1, 0.1, 0.2, 0.5, 2, 10) #fonctionne !!!
+evolutiontemporelle(30, 10, 0.1, 0.01, 0.1, 5, 5, 10) #fonctionne !
+evolutiontemporelle(30, 1, 0.1, 0.01, 0.1, 5, 5, 10) #fonctionne !!
 
 ##visualisation
 #def visualiser(n,t):
     #on pourrait faire une animation de la grille pour voir comment ça évolue de manière interactive
     #https://pyspc.readthedocs.io/fr/latest/05-bases/12-animation.html
 
+#pour faire une map colorée https://matplotlib.org/3.5.1/tutorials/colors/colormap-manipulation.html#sphx-glr-tutorials-colors-colormap-manipulation-py
+
+#mettre dégradé de bleu en fonction de la réserve, dégradé de rouge en fonction de la pollution etc...
 
 
 
