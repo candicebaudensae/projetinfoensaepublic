@@ -1,4 +1,4 @@
-#projet info v4
+#projet info v5
 #projet de programmation S2 ENSAE
 
 import numpy as np
@@ -18,7 +18,7 @@ from math import ceil
 def situation_initiale(n): #n la taille de la grille
     return(np.random.randint(6, size=(n,n)))
 
-A=situation_initiale(10)
+#A=situation_initiale(10)
 
 def sourceeau(A):
     E=np.zeros((len(A), len(A)))
@@ -28,7 +28,7 @@ def sourceeau(A):
                 E[i][j]=rd.randint(1000, 3000)
     return(E)
 
-E=sourceeau(A)
+#E=sourceeau(A)
 
 def pointsdevie(A):
     n=len(A)
@@ -39,7 +39,7 @@ def pointsdevie(A):
                 V[i][j]=rd.randint(0, 5)
     return (V)
 
-V=pointsdevie(A)
+#V=pointsdevie(A)
 
 def besoinseneau(A, E, V):
     e=np.sum(E) #somme des réserves en eau
@@ -61,7 +61,7 @@ def besoinseneau(A, E, V):
                 b=b+B[i][j]
     return (B)
 
-B=besoinseneau(A,E,V)
+#B=besoinseneau(A,E,V)
 
 def matricedelapollutiondeleau(A,p1,p2): #matrice du pouvoir polluant des agents
     n=len(A)
@@ -76,12 +76,12 @@ def matricedelapollutiondeleau(A,p1,p2): #matrice du pouvoir polluant des agents
 #P va rpz le taux de pollution de l'eau de chaque agent
 #on considère qu'au t=0 aucune eau n'est polluée
 
-P=matricedelapollutiondeleau(A, 0.02, 0.1)
+#P=matricedelapollutiondeleau(A, 0.02, 0.1)
 
 def pol(n): #matrice de l'eau polluée
     return np.zeros((n,n))
 
-Pol=pol(10)
+#Pol=pol(10)
 
 def fermiereteaudesecteur(A):
     n=len(A)
@@ -97,7 +97,7 @@ def fermiereteaudesecteur(A):
                 Sect[i][j]= [res[0], res[1]]
     return (Sect)
 
-Sect=fermiereteaudesecteur(A)
+#Sect=fermiereteaudesecteur(A)
 
 ##itératif
 def distance(x,y):#x et y sont des cases cad des A[i][j] par ex
@@ -126,9 +126,9 @@ def rechercheplusproche(a, Matrice, type, interdits): #marche pour tout
     else:
         return (False)
 
-#à retester
 
-def pollutioniterative(E, P, Pol, dmax): #pour passer de t à t+1
+
+def pollutioniterative(E, P,A, Pol, dmax): #pour passer de t à t+1
     n=len(Pol)
     d=0
     x=0
@@ -202,7 +202,7 @@ def utilisationdeleaubis(A, B, E, V, Prod, Sect, cp):
                 b=int(indice[1])
                 diff=E[a][b]-qtemanquante
                 if diff>=0: #on produit seulement si on a assez
-                    Prod=production(A, E, B, Prod, cp) 
+                    Prod=production(A, E, B, Prod, cp)
             elif A[i][j]==1 and V[i][j]!=0:
                 qtemanquante=B[i][j]
                 indice=Sect[i][j]
@@ -210,12 +210,11 @@ def utilisationdeleaubis(A, B, E, V, Prod, Sect, cp):
                 if diff<0:
                     V[i][j]=V[i][j]-1
                     E[a][b]=0
-                else: 
+                else:
                     E[a][b]=diff
     return (E, B, V, Prod)
 
-    
-    
+
 def production(A, E, B, Prod, cp): #production des agriculteurs en fonction de la ressource en eau potable, cp coeff de production, Prod matrice de la production
     n=len(E)
     for i in range (n):
@@ -227,7 +226,7 @@ def production(A, E, B, Prod, cp): #production des agriculteurs en fonction de l
 #test Prod=production(A,E,Prod,3) fonctionne
 
 ##à améliorer car pour l'instant si le fermier proche n'a pas à manger, on ne mange pas, or, on peut aller voir plus loin
-def survie(A, E, Prod, consounitaire):
+def survie(A, E, Prod, consounitaire,V):
     n=len(A)
     diff=0
     for i in range(n):
@@ -243,6 +242,25 @@ def survie(A, E, Prod, consounitaire):
                         V[i][j]=0
                 else :
                     Prod[f[0],f[1]]=Prod[f[0],f[1]] - consounitaire*V[i][j] #on consomme en fonction de ses points de vie ( ou fictivement du nombre de personnes dans le foyer )
+    return (V,Prod)
+
+def surviebis(A, E, Prod, consounitaire,V, Sect):
+    n=len(A)
+    diff=0
+    for i in range(n):
+        for j in range (n):
+            f=Sect[i][j]
+            a=int(f[0])
+            b=int(f[1])
+            diff=Prod[a][b]-V[i][j]*consounitaire
+            if diff<0:
+                if V[i][j]>=1:
+                    V[i][j]=V[i][j]-1
+                    Prod[a][b]=0
+                else:
+                    V[i][j]=0
+            else :
+                Prod[a][b]=Prod[a][b] - consounitaire*V[i][j] #on consomme en fonction de ses points de vie ( ou fictivement du nombre de personnes dans le foyer )
     return (V,Prod)
 
 # test V,Prod = survie(A, E, Prod, 2) ok
@@ -264,8 +282,8 @@ def evolutiontemporelle(n, t, consounitaire, p1, p2, cp, dmax, traitement): # t 
     #evolutiondePol
     #evolutiondespointsdevie
     for i in range (t):
-        V, Prod=survie(A,E,Prod,consounitaire) #on regarde si on peut nourrir tout le monde et on stocke l'excédent de production
-        E, Pol= pollutioniterative(E, P, Pol, dmax)#ce qui pollue l'eau avec le reste des agents pollueurs
+        V, Prod=surviebis(A,E,Prod,consounitaire,V, Sect) #on regarde si on peut nourrir tout le monde et on stocke l'excédent de production
+        E, Pol= pollutioniterative(E, P,A, Pol, dmax)#ce qui pollue l'eau avec le reste des agents pollueurs
         (E,B,V,Prod)=utilisationdeleaubis(A, B, E, V, Prod, Sect, cp) #on répartit l'eau restante
         E=traitementdeleau(A, E, dmax, traitement) # on recrée de l'eau pour le cycle suivant
         #evolutiondeE.append(E)
@@ -276,7 +294,7 @@ def evolutiontemporelle(n, t, consounitaire, p1, p2, cp, dmax, traitement): # t 
     return ()
 
 #test
-evolutiontemporelle(5, 1, 1, 0.1, 0.2, 0.5, 2, 10)
+evolutiontemporelle(5, 10, 1, 0.1, 0.2, 0.5, 2, 10)
 
 ##visualisation
 #def visualiser(n,t):
