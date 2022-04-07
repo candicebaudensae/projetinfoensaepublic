@@ -1,0 +1,84 @@
+#projet info en programmation objet
+
+import numpy as np
+import matplotlib.pyplot as plt
+import random as rd
+from math import floor
+from math import ceil
+
+##on crée une situation initiale
+#situation initiale : on crée une matrice aléatoire d'entiers entre 0 et 2 de taille n ( taille du village )
+#0 correspond à un terrain vague
+#1 correspond à une habitation
+#2 correspond à un agent qui pollue l'eau
+#3 correspond à une ferme
+#4 correspond à une ressource en eau
+#5 correspond à une usine de traitement de l'eau
+def situation_initiale(n): #n la taille de la grille
+    return(np.random.randint(6, size=(n,n)))
+
+A=situation_initiale(10)
+
+##on définit tout ce qu'on va utiliser comme agents, et leurs paramètres qui vont être utilisés dans les fonctions
+#on def aussi les fonctions qui dépendent des paramètres de nos objets
+
+class Agents:
+
+    def __init__(self,A, i, j, besoineau, facteurprod, prio):
+        """on définit qui est qui pour tout i,j"""
+        self.position = [i,j]
+        n=A[i][j]
+        self.besoineneau = besoineau[n]
+        self.facteurproduction = facteurprod[n]
+        self.priorité = prio[n]
+        self.prioritédeux = rd.random()
+
+        if n==3:
+            self.type = "fermier"
+
+        elif n==0:
+            self.type = "terrain vague"
+
+        elif n==1:
+            self.type = "habitation"
+
+        elif n==2 :
+            self.type = "pollueur"
+
+        elif A[i][j]==4:
+            self.type = "ressource"
+
+        else:
+            self.type = "usine de traitement de l'eau"
+
+        def polluer(self):
+
+
+
+agent1=Agents(A, 0, 0, [1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0], [0, 1, 2, 3, 4, 5]) #fonctionne super bien, grave stylé
+
+
+##fonction principale
+B = [0, 10, 50, 100, 0, 0]
+Prod = [0, 0, 0, 2, 0, 10]
+Prio = [0, 4, 1, 3, -1, 2 ]
+
+def initagents(A, besoineau, facteurprod, prio):
+    lesagents = list()
+    nouveau = Agents(A, 0, 0, besoineau, facteurprod, prio)
+    lesagents.append(nouveau)
+    for i in range (len(A)):
+        for j in range (len(A[i])):
+            nouveau=Agents(A, i, j, besoineau, facteurprod, prio)
+            lesagents.append(nouveau)
+    return (lesagents)
+
+base = initagents(A, B, Prod, Prio)
+
+#jusque là ça a l'air ok
+
+
+for t in range (temps):
+
+
+#https://www.youtube.com/watch?v=KHsEAuZdS5w pour explication prog objet avec des jeux vidéos
